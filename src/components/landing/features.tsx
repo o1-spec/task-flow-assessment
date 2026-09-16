@@ -55,7 +55,7 @@ export function LandingFeatures() {
             Engineered for productivity
           </h2>
           <h3 className="mt-2 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-            Everything you need. Nothing you don't.
+            Everything you need. Nothing you don&apos;t.
           </h3>
           <p className="mt-3.5 text-base text-slate-600">
             A fast, uncluttered task manager that focuses on high-impact workflows and dependable performance.
