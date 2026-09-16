@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 import type { SessionUser } from "@/lib/types";
 
 export function SettingsView({ user }: { user: SessionUser }) {
@@ -22,6 +23,8 @@ export function SettingsView({ user }: { user: SessionUser }) {
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
   const [updatingProfile, setUpdatingProfile] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   // Password update state
   const [currentPassword, setCurrentPassword] = useState("");
@@ -88,13 +91,17 @@ export function SettingsView({ user }: { user: SessionUser }) {
   };
 
   const handleLogout = async () => {
+    setLoggingOut(true);
     try {
       await fetch("/api/auth/logout", { method: "POST" });
       toast.success("Signed out");
+      setShowLogoutDialog(false);
       router.push("/login");
       router.refresh();
     } catch {
       toast.error("Could not sign out");
+    } finally {
+      setLoggingOut(false);
     }
   };
 
@@ -286,12 +293,38 @@ export function SettingsView({ user }: { user: SessionUser }) {
               <p className="text-sm font-bold text-slate-900">Sign out of this session</p>
               <p className="text-xs text-slate-500">Clears your session cookie and returns you to the login screen.</p>
             </div>
-            <Button variant="danger" size="sm" onClick={handleLogout}>
+            <Button variant="danger" size="sm" onClick={() => setShowLogoutDialog(true)}>
               <LogOut className="h-4 w-4" /> Sign out
             </Button>
           </div>
         </section>
       </div>
+
+      {/* Sign Out Confirmation Dialog */}
+      <Modal
+        open={showLogoutDialog}
+        onClose={() => !loggingOut && setShowLogoutDialog(false)}
+        title="Sign out of TaskFlow?"
+        description="Are you sure you want to end your current session? You will need to enter your email and password to access your tasks again."
+        size="sm"
+      >
+        <div className="mt-6 flex justify-end gap-2.5">
+          <Button
+            variant="secondary"
+            onClick={() => setShowLogoutDialog(false)}
+            disabled={loggingOut}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            onClick={handleLogout}
+            disabled={loggingOut}
+          >
+            {loggingOut ? "Signing out..." : "Sign out"}
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }

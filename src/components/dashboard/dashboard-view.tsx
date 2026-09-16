@@ -10,9 +10,14 @@ import {
   Circle,
   CircleDot,
   ClipboardList,
+  ExternalLink,
+  Loader2,
+  Pencil,
   Plus,
+  RotateCcw,
   Sparkles,
   TimerReset,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -36,6 +41,13 @@ export function DashboardView({ user }: { user: SessionUser }) {
   const [summary, setSummary] = useState<TaskSummary>(emptySummary);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
+
+  // Dialog states for Quick View, Edit, and Delete
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [deletingTask, setDeletingTask] = useState<Task | null>(null);
+  const [deletingBusy, setDeletingBusy] = useState(false);
+  const [statusUpdating, setStatusUpdating] = useState(false);
 
   const [greeting, setGreeting] = useState("Welcome");
 
@@ -81,6 +93,78 @@ export function DashboardView({ user }: { user: SessionUser }) {
     setCreateOpen(false);
     toast.success("Task created successfully");
     await loadDashboardData();
+  };
+
+  const handleUpdateTask = async (value: TaskFormValue) => {
+    if (!editingTask) return;
+    try {
+      const res = await fetch(`/api/tasks/${editingTask.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(value),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || "Failed to update task");
+      }
+
+      toast.success("Task updated");
+      setEditingTask(null);
+      if (selectedTask?.id === editingTask.id) {
+        setSelectedTask(null);
+      }
+      await loadDashboardData();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Error updating task");
+    }
+  };
+
+  const handleDeleteTask = async () => {
+    if (!deletingTask) return;
+    setDeletingBusy(true);
+    try {
+      const res = await fetch(`/api/tasks/${deletingTask.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || "Failed to delete task");
+      }
+      toast.success("Task deleted");
+      setDeletingTask(null);
+      if (selectedTask?.id === deletingTask.id) {
+        setSelectedTask(null);
+      }
+      await loadDashboardData();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not delete task");
+    } finally {
+      setDeletingBusy(false);
+    }
+  };
+
+  const handleToggleTaskStatus = async (task: Task) => {
+    const nextStatus = task.status === "COMPLETED" ? "TODO" : "COMPLETED";
+    setStatusUpdating(true);
+    try {
+      const res = await fetch(`/api/tasks/${task.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || "Could not update task status");
+      }
+      toast.success(nextStatus === "COMPLETED" ? "Task marked completed" : "Task reopened");
+      if (selectedTask?.id === task.id) {
+        setSelectedTask({ ...task, status: nextStatus });
+      }
+      await loadDashboardData();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Error updating task");
+    } finally {
+      setStatusUpdating(false);
+    }
   };
 
   const recentTasks = useMemo(() => {
@@ -226,23 +310,35 @@ export function DashboardView({ user }: { user: SessionUser }) {
               </div>
             ) : (
               recentTasks.map((task) => (
-                <Link
+                <div
                   key={task.id}
-                  href={`/tasks/${task.id}`}
                   className="group flex items-center justify-between py-3 transition hover:bg-slate-50/80 -mx-2 px-2 rounded-xl"
                 >
-                  <div className="min-w-0 flex-1 pr-3">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedTask(task)}
+                    className="min-w-0 flex-1 pr-3 text-left focus:outline-none"
+                    title="Click to preview task details"
+                  >
                     <p className="text-sm font-semibold text-slate-900 truncate group-hover:text-indigo-600 transition">
                       {task.title}
                     </p>
                     <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">
                       {task.description}
                     </p>
-                  </div>
+                  </button>
                   <div className="flex shrink-0 items-center gap-2">
                     <StatusPill status={task.status} />
+                    <Link
+                      href={`/tasks/${task.id}`}
+                      className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
+                      title="Open full task page"
+                      aria-label={`Open full page for ${task.title}`}
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </Link>
                   </div>
-                </Link>
+                </div>
               ))
             )}
           </div>
@@ -274,12 +370,16 @@ export function DashboardView({ user }: { user: SessionUser }) {
               upcomingDeadlines.map((task) => {
                 const overdue = isTaskOverdue(task.dueDate, task.status);
                 return (
-                  <Link
+                  <div
                     key={task.id}
-                    href={`/tasks/${task.id}`}
                     className="group flex items-center justify-between py-3 transition hover:bg-slate-50/80 -mx-2 px-2 rounded-xl"
                   >
-                    <div className="min-w-0 flex-1 pr-3">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedTask(task)}
+                      className="min-w-0 flex-1 pr-3 text-left focus:outline-none"
+                      title="Click to preview task details"
+                    >
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-semibold text-slate-900 truncate group-hover:text-indigo-600 transition">
                           {task.title}
@@ -294,11 +394,19 @@ export function DashboardView({ user }: { user: SessionUser }) {
                         <CalendarDays className="h-3.5 w-3.5" />
                         <span>Due {formatDate(task.dueDate)}</span>
                       </div>
-                    </div>
-                    <div className="shrink-0">
+                    </button>
+                    <div className="flex shrink-0 items-center gap-2">
                       <StatusPill status={task.status} />
+                      <Link
+                        href={`/tasks/${task.id}`}
+                        className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
+                        title="Open full task page"
+                        aria-label={`Open full page for ${task.title}`}
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </Link>
                     </div>
-                  </Link>
+                  </div>
                 );
               })
             )}
@@ -312,8 +420,145 @@ export function DashboardView({ user }: { user: SessionUser }) {
         onClose={() => setCreateOpen(false)}
         title="Create a task"
         description="Add the details, status, and due date needed to organize this task."
+        size="md"
       >
         <TaskForm submitLabel="Create task" onSubmit={handleCreateTask} />
+      </Modal>
+
+      {/* Quick View Task Dialog */}
+      <Modal
+        open={Boolean(selectedTask)}
+        onClose={() => setSelectedTask(null)}
+        title={selectedTask?.title || "Task Overview"}
+        description="Quick overview and status management for this task."
+        size="md"
+      >
+        {selectedTask ? (
+          <div className="space-y-5">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-4">
+              <StatusPill status={selectedTask.status} />
+              <div className="flex items-center gap-2 text-xs text-slate-500">
+                <CalendarDays className="h-4 w-4 text-slate-400" />
+                <span>
+                  Due: <strong className="text-slate-800">{formatDate(selectedTask.dueDate)}</strong>
+                </span>
+                {isTaskOverdue(selectedTask.dueDate, selectedTask.status) && (
+                  <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-700">
+                    Overdue
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Description</p>
+              <p className="mt-1.5 text-sm leading-relaxed text-slate-700 whitespace-pre-wrap">
+                {selectedTask.description || "No description provided."}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-5">
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => handleToggleTaskStatus(selectedTask)}
+                  disabled={statusUpdating}
+                >
+                  {statusUpdating ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : selectedTask.status === "COMPLETED" ? (
+                    <RotateCcw className="h-3.5 w-3.5 text-slate-500" />
+                  ) : (
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                  )}
+                  {selectedTask.status === "COMPLETED" ? "Reopen" : "Complete"}
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    const taskToEdit = selectedTask;
+                    setSelectedTask(null);
+                    setEditingTask(taskToEdit);
+                  }}
+                >
+                  <Pencil className="h-3.5 w-3.5 text-slate-500" /> Edit
+                </Button>
+
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => {
+                    const taskToDelete = selectedTask;
+                    setSelectedTask(null);
+                    setDeletingTask(taskToDelete);
+                  }}
+                >
+                  <Trash2 className="h-3.5 w-3.5" /> Delete
+                </Button>
+              </div>
+
+              <Link
+                href={`/tasks/${selectedTask.id}`}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition"
+              >
+                Open full page <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </div>
+        ) : null}
+      </Modal>
+
+      {/* Edit Task Dialog */}
+      <Modal
+        open={Boolean(editingTask)}
+        onClose={() => setEditingTask(null)}
+        title="Edit task"
+        description="Update the task details, deadline, or move it to a different status."
+        size="md"
+      >
+        {editingTask ? (
+          <TaskForm
+            key={editingTask.id}
+            task={editingTask}
+            submitLabel="Save changes"
+            onSubmit={handleUpdateTask}
+          />
+        ) : null}
+      </Modal>
+
+      {/* Delete Confirmation Dialog */}
+      <Modal
+        open={Boolean(deletingTask)}
+        onClose={() => !deletingBusy && setDeletingTask(null)}
+        title="Delete task?"
+        description="This action permanently removes the task from your workspace. This action cannot be undone."
+        size="sm"
+      >
+        <div className="rounded-2xl border border-rose-100 bg-rose-50/60 p-4">
+          <p className="text-sm font-semibold text-slate-900">{deletingTask?.title}</p>
+          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-500">
+            {deletingTask?.description}
+          </p>
+        </div>
+        <div className="mt-6 flex justify-end gap-2">
+          <Button
+            variant="secondary"
+            onClick={() => setDeletingTask(null)}
+            disabled={deletingBusy}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            onClick={handleDeleteTask}
+            disabled={deletingBusy}
+          >
+            {deletingBusy ? "Deleting..." : "Delete task"}
+          </Button>
+        </div>
       </Modal>
     </div>
   );

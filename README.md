@@ -24,7 +24,7 @@ TaskFlow was created for a Software Engineering internship assessment. It delive
 8. [Architecture & Technical Decisions](#architecture--technical-decisions)
 9. [API Reference](#api-reference)
 10. [Quality & Verification](#quality--verification)
-11. [Assumptions](#assumptions)
+11. [Assumptions & Notable Decisions](#assumptions--notable-decisions)
 12. [Future Improvements](#future-improvements)
 
 ---
@@ -351,12 +351,56 @@ npm run build
 
 ---
 
-## Assumptions
+## Assumptions & Notable Decisions
 
-1. **Email Uniqueness**: User emails are unique case-insensitively and converted to lowercase.
-2. **Permanent Deletion**: Task deletion is irreversible and requires explicit confirmation in the UI.
-3. **Password Reset Simulation**: In the absence of an external transactional email provider (such as SendGrid or Postmark), `/forgot-password` renders a realistic confirmation state indicating that instructions were dispatched.
-4. **Single-Organization Scope**: Tasks belong directly to individual users. Workspaces are private to each user account.
+This section provides a short explanation of the assumptions and notable technical decisions made for this assessment submission:
+
+### 1. Data Model & Minimum Task Attributes
+- **Requirement Adherence**: Every task in TaskFlow strictly contains all 5 required attributes:
+  - **Title**: String up to 120 characters, validated for non-empty input.
+  - **Description**: Text field providing contextual detail.
+  - **Status**: Tri-state enum (`TODO`, `IN_PROGRESS`, `COMPLETED`).
+  - **Due Date**: ISO DateTime normalized to UTC midnight to avoid client timezone shifts.
+  - **Created Date**: Auto-generated timestamp (`createdAt @default(now())`).
+  - *Extension*: Added `updatedAt` for auditability and `userId` for data isolation.
+
+### 2. Multi-Tenant Task Ownership (Notable Decision)
+- Rather than a shared global task list where any visitor can alter any task, TaskFlow assumes tasks belong to authenticated accounts.
+- **Server-Side Enforcement**: All database queries (`findMany`, `findFirst`, `update`, `delete`) enforce `where: { id, userId: session.id }`. Unowned task access returns a clean `404 Not Found` to prevent resource enumeration attacks.
+
+### 3. Dynamic Overdue Calculation (Notable Decision)
+- **Decision**: Overdue is not stored as a static enum value in the database because a task's due date continuously ages relative to real time. A stored `OVERDUE` status would become stale unless a background cron worker updated the database continuously.
+- **Implementation**: Overdue status is calculated dynamically:
+  $$\text{isOverdue} = (\text{dueDate} < \text{currentDate}) \land (\text{status} \neq \text{COMPLETED})$$
+  In PostgreSQL queries, this is resolved via `WHERE "dueDate" < NOW() AND "status" != 'COMPLETED'` backed by a compound index on `(userId, dueDate)`.
+
+### 4. Native Session Authentication Over External Lock-In (Notable Decision)
+- Rather than introducing heavy third-party authentication services (e.g., Clerk, Auth0) or unstable beta packages, native session cookies were implemented using `bcryptjs` and `jose` (JWT).
+- **Benefits**:
+  - Zero external vendor lock-in.
+  - Works 100% offline, in Docker, and in CI environments.
+  - Mitigates XSS token theft via `httpOnly` and `SameSite=Lax` cookies.
+
+### 5. Dialog Boxes & Destructive Action Safeguards (Assumption & Decision)
+- **Permanent Deletion**: Task deletion is irreversible (hard delete).
+- **Confirmation Dialogs**: To prevent accidental data loss or accidental session termination, interactive modal dialog boxes are required for:
+  - Task deletion (both on the dashboard, task list, and task detail page).
+  - Session sign-out (in desktop sidebar, mobile drawer, and settings).
+
+### 6. Invalid Input Validation & Safe Error Handling (Requirement)
+- **Validation**: Shared Zod schemas validate data on both client forms and API route handlers.
+- **Error Responses**: Validation failures return structured `400 Bad Request` responses with field-specific messages (`{ message, fields: { title: [...] } }`). Database connection issues return generic `500` or `503` messages that never leak database connection strings or server stack traces.
+
+### 7. Completion Status
+- **All requirements completed**:
+  1. Create a task (via modal dialogs on `/dashboard` and `/tasks`) ✅
+  2. View a list of tasks (with live search, status filters, and sorting on `/tasks`) ✅
+  3. View an individual task (dedicated route `/tasks/[id]` + quick view dialog) ✅
+  4. Update a task (edit modal + one-click completion toggle) ✅
+  5. Delete a task (with confirmation dialog box) ✅
+  6. Database persistence (PostgreSQL with Prisma migrations) ✅
+  7. Input validation and error handling (Zod + error boundaries) ✅
+- There are no incomplete features or missing assessment requirements.
 
 ---
 

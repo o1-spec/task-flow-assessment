@@ -14,6 +14,8 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 import type { SessionUser } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -34,12 +36,14 @@ export function AppShell({
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   const handleLogout = async () => {
     setLoggingOut(true);
     try {
       await fetch("/api/auth/logout", { method: "POST" });
       toast.success("Signed out");
+      setShowLogoutDialog(false);
       router.push("/login");
       router.refresh();
     } catch {
@@ -124,7 +128,7 @@ export function AppShell({
             </div>
 
             <button
-              onClick={handleLogout}
+              onClick={() => setShowLogoutDialog(true)}
               disabled={loggingOut}
               title="Sign out"
               aria-label="Sign out"
@@ -203,7 +207,10 @@ export function AppShell({
 
             <div className="mt-4 border-t border-slate-100 pt-3">
               <button
-                onClick={handleLogout}
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setShowLogoutDialog(true);
+                }}
                 disabled={loggingOut}
                 className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-rose-600 hover:bg-rose-50 transition"
               >
@@ -219,6 +226,32 @@ export function AppShell({
       <div className="lg:pl-64">
         <main>{children}</main>
       </div>
+
+      {/* Sign Out Confirmation Dialog */}
+      <Modal
+        open={showLogoutDialog}
+        onClose={() => !loggingOut && setShowLogoutDialog(false)}
+        title="Sign out of TaskFlow?"
+        description="Are you sure you want to end your current session? You will need to enter your email and password to access your tasks again."
+        size="sm"
+      >
+        <div className="mt-6 flex justify-end gap-2.5">
+          <Button
+            variant="secondary"
+            onClick={() => setShowLogoutDialog(false)}
+            disabled={loggingOut}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            onClick={handleLogout}
+            disabled={loggingOut}
+          >
+            {loggingOut ? "Signing out..." : "Sign out"}
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }
