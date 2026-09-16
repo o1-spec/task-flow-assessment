@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { CheckSquare2, Menu, X, ArrowRight } from "lucide-react";
+import { CheckSquare2, Menu, X, ArrowRight, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function LandingNavbar({
@@ -39,12 +39,24 @@ export function LandingNavbar({
 
         <div className="hidden items-center gap-3 md:flex">
           {user ? (
-            <Link href="/dashboard">
-              <Button size="sm" className="bg-slate-950 text-white hover:bg-slate-800">
-                Go to Dashboard
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Button>
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/settings"
+                className="flex items-center gap-2 rounded-xl border border-slate-200/90 bg-slate-50/80 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:bg-white hover:text-slate-950 transition shadow-2xs"
+                title="Account Settings"
+              >
+                <span className="grid h-6 w-6 place-items-center rounded-lg bg-indigo-100 text-indigo-700">
+                  <User className="h-3.5 w-3.5" />
+                </span>
+                <span>{user.name}</span>
+              </Link>
+              <Link href="/dashboard">
+                <Button size="sm" className="bg-slate-950 text-white hover:bg-slate-800">
+                  Go to Dashboard
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Button>
+              </Link>
+            </div>
           ) : (
             <>
               <Link href="/login">
@@ -93,11 +105,21 @@ export function LandingNavbar({
             </a>
             <div className="my-2 border-t border-slate-100 pt-3 flex flex-col gap-2">
               {user ? (
-                <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                  <Button className="w-full justify-center bg-slate-950 text-white">
-                    Go to Dashboard
-                  </Button>
-                </Link>
+                <>
+                  <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-50 border border-slate-100 mb-1">
+                    <span className="grid h-7 w-7 place-items-center rounded-lg bg-indigo-100 text-indigo-700">
+                      <User className="h-4 w-4" />
+                    </span>
+                    <span className="text-sm font-semibold text-slate-800 truncate">
+                      {user.name}
+                    </span>
+                  </div>
+                  <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full justify-center bg-slate-950 text-white">
+                      Go to Dashboard
+                    </Button>
+                  </Link>
+                </>
               ) : (
                 <>
                   <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
