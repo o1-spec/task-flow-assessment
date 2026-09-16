@@ -61,14 +61,14 @@ export function AppShell({
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-950">
       {/* Desktop Sidebar */}
-      <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-slate-800/90 bg-[#0e1628] px-4 py-5 text-white lg:flex z-30">
+      <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-slate-200 bg-white px-4 py-5 text-slate-900 lg:flex z-30">
         <Link href="/dashboard" className="flex items-center gap-3 px-2 py-2">
-          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-white text-slate-950 shadow-lg shadow-black/20">
+          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-slate-950 text-white shadow-xs">
             <CheckSquare2 className="h-5 w-5" />
           </span>
           <div>
-            <div className="text-[15px] font-bold tracking-tight">TaskFlow</div>
-            <div className="text-[11px] text-slate-400">Focused work, clearly.</div>
+            <div className="text-[15px] font-bold tracking-tight text-slate-950">TaskFlow</div>
+            <div className="text-[11px] text-slate-500">Focused work, clearly.</div>
           </div>
         </Link>
 
@@ -88,11 +88,11 @@ export function AppShell({
                 className={cn(
                   "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
                   active
-                    ? "bg-white/10 text-white font-semibold"
-                    : "text-slate-400 hover:bg-white/[0.06] hover:text-slate-200",
+                    ? "bg-slate-100 font-bold text-slate-950 shadow-xs"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
                 )}
               >
-                <Icon className="h-4 w-4" />
+                <Icon className={cn("h-4 w-4", active ? "text-slate-950" : "text-slate-500")} />
                 {item.label}
               </Link>
             );
@@ -100,26 +100,26 @@ export function AppShell({
         </nav>
 
         {/* Focus Callout */}
-        <div className="mt-auto mb-4 rounded-2xl border border-white/10 bg-white/[0.04] p-3.5">
-          <div className="mb-1.5 flex items-center gap-2 text-xs font-semibold text-slate-200">
-            <Sparkles className="h-3.5 w-3.5 text-indigo-300" />
+        <div className="mt-auto mb-4 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-3.5">
+          <div className="mb-1.5 flex items-center gap-2 text-xs font-semibold text-slate-800">
+            <Sparkles className="h-3.5 w-3.5 text-indigo-600" />
             Stay focused
           </div>
-          <p className="text-[11px] leading-4 text-slate-400">
+          <p className="text-[11px] leading-4 text-slate-500">
             Prioritize what matters, keep due dates visible, and close the loop.
           </p>
         </div>
 
         {/* User Profile & Logout */}
-        <div className="border-t border-white/10 pt-4">
+        <div className="border-t border-slate-100 pt-4">
           <div className="flex items-center justify-between gap-2 px-1">
             <div className="flex items-center gap-2.5 min-w-0">
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-indigo-500/30 text-indigo-200 text-xs font-bold border border-indigo-400/30">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-200/60">
                 {getInitials(user.name)}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-white truncate">{user.name}</p>
-                <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
+                <p className="text-xs font-semibold text-slate-900 truncate">{user.name}</p>
+                <p className="text-[10px] text-slate-500 truncate">{user.email}</p>
               </div>
             </div>
 
@@ -128,7 +128,7 @@ export function AppShell({
               disabled={loggingOut}
               title="Sign out"
               aria-label="Sign out"
-              className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-white/10 hover:text-white transition"
+              className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
             >
               <LogOut className="h-4 w-4" />
             </button>

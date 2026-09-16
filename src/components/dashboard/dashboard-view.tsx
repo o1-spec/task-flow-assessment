@@ -101,19 +101,19 @@ export function DashboardView({ user }: { user: SessionUser }) {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8 lg:py-9">
-      <section className="relative overflow-hidden rounded-3xl bg-[#0f172a] px-6 py-7 text-white shadow-soft sm:px-8 sm:py-8">
-        <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-indigo-500/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-cyan-400/10 blur-3xl" />
+      <section className="relative overflow-hidden rounded-3xl border border-slate-200/90 bg-white px-6 py-7 text-slate-950 shadow-xs sm:px-8 sm:py-8">
+        <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-indigo-50/70 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-sky-50/50 blur-3xl" />
 
         <div className="relative flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-semibold text-indigo-300">
-              <Sparkles className="h-3.5 w-3.5" /> Workspace Overview
+            <span className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50/80 px-3 py-1 text-xs font-semibold text-indigo-700">
+              <Sparkles className="h-3.5 w-3.5 text-indigo-600" /> Workspace Overview
             </span>
-            <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
+            <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
               {greeting}, {firstName}
             </h1>
-            <p className="mt-2 text-sm text-slate-300 sm:text-base">
+            <p className="mt-2 text-sm text-slate-500 sm:text-base">
               Here is what is happening across your tasks today.
             </p>
           </div>
@@ -121,16 +121,15 @@ export function DashboardView({ user }: { user: SessionUser }) {
           <div className="flex flex-wrap items-center gap-3">
             <Link href="/tasks">
               <Button
-                variant="ghost"
+                variant="secondary"
                 size="lg"
-                className="text-slate-300 hover:bg-white/10 hover:text-white border border-white/10"
               >
-                <ClipboardList className="h-4 w-4" /> View all tasks
+                <ClipboardList className="h-4 w-4 text-slate-500" /> View all tasks
               </Button>
             </Link>
             <Button
               size="lg"
-              className="bg-white text-slate-950 hover:bg-slate-100 shadow-md"
+              className="bg-slate-950 text-white hover:bg-slate-800 shadow-sm"
               onClick={() => setCreateOpen(true)}
             >
               <Plus className="h-4 w-4" /> New task
