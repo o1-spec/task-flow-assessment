@@ -1,40 +1,47 @@
 # TaskFlow — Production-Grade SaaS Task Management Application
 
-A production-quality task management SaaS application built with **Next.js 15 (App Router)**, **TypeScript**, **PostgreSQL**, **Prisma ORM**, and **Tailwind CSS**.
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma)](https://www.prisma.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql)](https://www.postgresql.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
 
-TaskFlow transforms practical assessment requirements into an interview-ready, full-stack product featuring public product landing, secure session authentication, strict server-side user task ownership, an overview dashboard, and a task management workspace with search, filtering, and sorting.
+A modern, production-quality task management SaaS application built with **Next.js 15 (App Router)**, **TypeScript**, **PostgreSQL**, **Prisma ORM**, and **Tailwind CSS**.
+
+TaskFlow was created for a Software Engineering internship assessment. It delivers a secure, multi-tenant SaaS experience featuring a public landing page, session-based authentication, strict server-side task ownership, an overview dashboard, and a full-featured task workspace with real-time search, status filtering, and sorting.
 
 ---
 
 ## Table of Contents
 
 1. [Project Overview](#project-overview)
-2. [Features](#features)
-3. [Tech Stack & Rationale](#tech-stack--rationale)
+2. [Key Features](#key-features)
+3. [Tech Stack & Architecture](#tech-stack--architecture)
 4. [Project Structure](#project-structure)
 5. [Getting Started](#getting-started)
 6. [Environment Variables](#environment-variables)
 7. [Database Setup & Migrations](#database-setup--migrations)
 8. [Architecture & Technical Decisions](#architecture--technical-decisions)
 9. [API Reference](#api-reference)
-10. [Assumptions](#assumptions)
-11. [Realistic Future Improvements](#realistic-future-improvements)
+10. [Quality & Verification](#quality--verification)
+11. [Assumptions](#assumptions)
+12. [Future Improvements](#future-improvements)
 
 ---
 
 ## Project Overview
 
-TaskFlow is designed to help professionals and engineering teams stay organized, hit approaching deadlines, and maintain focus. The application separates concerns into three distinct areas:
+TaskFlow is organized into three distinct product surfaces:
 
-1. **Public Marketing Surface (`/`)**: A responsive SaaS landing page with navigation, hero section, interactive dashboard preview, feature showcases, a 3-step workflow guide, and a high-converting bottom call-to-action.
+1. **Public Marketing Surface (`/`)**: A responsive SaaS landing page with navigation, hero section, interactive dashboard preview, feature highlights, a 3-step workflow guide, and a high-converting bottom call-to-action.
 2. **Authentication Flow (`/login`, `/register`, `/forgot-password`)**: Client- and server-validated user authentication backed by `bcryptjs` password hashing and secure HTTP-only session cookies.
-3. **Authenticated Workspace (`/dashboard`, `/tasks`, `/tasks/[id]`, `/settings`)**: A private workspace protected by Next.js Edge Middleware and server-side authorization checks, ensuring users only access their own tasks.
+3. **Authenticated Workspace (`/dashboard`, `/tasks`, `/tasks/[id]`, `/settings`)**: A private workspace protected by Next.js Edge Middleware and server-side authorization checks, ensuring users can only view and modify their own tasks.
 
 ---
 
-## Features
+## Key Features
 
-- **Session Authentication**: Secure user registration, sign-in, and sign-out with `bcryptjs` salted password hashing and generic login security messaging.
+- **Session Authentication**: Secure user registration, sign-in, and sign-out with `bcryptjs` salted password hashing, password visibility toggles (`Eye` / `EyeOff`), and generic login security messaging.
 - **Strict User Ownership**: Multi-tenant database design where tasks belong directly to a user; server-side queries and mutations reject unauthorized access with zero data leakage.
 - **Overview Dashboard (`/dashboard`)**:
   - Time-of-day dynamic greeting (`"Good morning, Alex"`).
@@ -55,7 +62,7 @@ TaskFlow is designed to help professionals and engineering teams stay organized,
   - Safe 404 handling when viewing nonexistent or unowned tasks.
 - **User Settings (`/settings`)**:
   - Profile details (name and email modification with email conflict guards).
-  - Password change with current-password verification and confirmation matching.
+  - Password change with current-password verification, confirmation matching, and visibility toggles.
   - Security overview inspecting session parameters (`httpOnly`, `SameSite=lax`).
 - **Responsive Layout**:
   - Desktop: Persistent dark sidebar, breadcrumbs, and spacious workspace.
@@ -66,7 +73,7 @@ TaskFlow is designed to help professionals and engineering teams stay organized,
 
 ---
 
-## Tech Stack & Rationale
+## Tech Stack & Architecture
 
 | Technology | Purpose | Why It Was Chosen |
 | :--- | :--- | :--- |
@@ -91,7 +98,7 @@ taskflow-assessment/
 │   ├── migrations/             # SQL migration files
 │   ├── schema.prisma           # Prisma schema (User & Task models)
 │   └── seed.ts                 # Demo seed script (demo user + tasks)
-├── public/                     # Static assets & icons
+├── public/                     # Static assets, icons, and favicon.svg
 ├── src/
 │   ├── app/
 │   │   ├── (app)/              # Authenticated route group
@@ -112,7 +119,8 @@ taskflow-assessment/
 │   │   │   ├── tasks/          # User-scoped task CRUD
 │   │   │   └── user/           # Profile & password mutation endpoints
 │   │   ├── globals.css         # Base styles & typography
-│   │   ├── layout.tsx          # Root HTML/Body wrapper with Toaster
+│   │   ├── icon.svg            # Branded application favicon
+│   │   ├── layout.tsx          # Root HTML/Body wrapper with Toaster & icon metadata
 │   │   ├── not-found.tsx       # 404 error page
 │   │   ├── error.tsx           # Global error boundary
 │   │   └── page.tsx            # Public SaaS landing page
@@ -159,8 +167,8 @@ cp .env.example .env
 Ensure `.env` contains valid database credentials and a secure session secret:
 
 ```env
-DATABASE_URL="postgresql://postgres:password@localhost:5432/taskflow?schema=public"
-DIRECT_URL="postgresql://postgres:password@localhost:5432/taskflow?schema=public"
+DATABASE_URL="postgresql://postgres.[REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres.[REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres"
 SESSION_SECRET="your-secure-random-string-at-least-32-chars-long"
 ```
 
@@ -210,13 +218,13 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Local PostgreSQL with Docker (Optional)
 
-If you don't have a local PostgreSQL instance installed, launch one using Docker:
+If you prefer running a local PostgreSQL instance:
 
 ```bash
 docker compose up -d db
 ```
 
-Then run:
+Then deploy the schema:
 
 ```bash
 npx prisma migrate deploy
@@ -269,7 +277,7 @@ model Task {
 
 ## Architecture & Technical Decisions
 
-### 1. Why Custom Session Authentication (HTTP-Only Cookies)?
+### 1. Custom Session Authentication (HTTP-Only Cookies)
 Rather than introducing heavy third-party authentication services (like Clerk or Auth0) or dealing with the breaking beta changes of NextAuth in Next.js 15, we implemented native session cookies using `bcryptjs` and `jose`:
 - Demonstrates complete mastery of authentication fundamentals: salted password hashing, HTTP-only cookie security flags (`httpOnly`, `SameSite=lax`, `secure`), and edge-compatible token verification.
 - Zero external vendor lock-in. Works 100% offline, in Docker containers, and in automated test environments.
@@ -281,11 +289,11 @@ The Next.js `middleware.ts` runs at the Edge, intercepting incoming requests bef
 - Already-authenticated users visiting `/login`, `/register`, or `/forgot-password` are redirected straight to `/dashboard`.
 
 ### 3. Server-Side Ownership Enforcement
-Security cannot rely solely on the UI hiding edit or delete buttons:
+Security does not rely on the UI hiding buttons:
 - Every query and mutation in `/api/tasks` and `/api/tasks/[id]` explicitly verifies `userId: session.id`.
 - Requesting `/tasks/[id]` for a task owned by another user yields a clean `404 Not Found`, preventing malicious actors from confirming the existence of tasks via ID enumeration.
 
-### 4. Why "Overdue" is Calculated Rather than Stored as a Database Status
+### 4. Dynamic Overdue Calculation
 A task's due date continuously ages relative to the current timestamp. Storing an `OVERDUE` enum in the database would create stale data unless an external cron job updated every row continuously. Instead, TaskFlow calculates overdue status dynamically:
 $$\text{isOverdue} = (\text{dueDate} < \text{currentDate}) \land (\text{status} \neq \text{COMPLETED})$$
 In queries, this is efficiently resolved in PostgreSQL:
@@ -299,16 +307,45 @@ Due dates are normalized to UTC midnight (`YYYY-MM-DDT00:00:00.000Z`) during par
 
 ---
 
-## Quality & Verification Commands
+## API Reference
+
+### Health
+- `GET /api/health`: Database connectivity ping. Returns `200 { status: "ok", database: "reachable" }` or `503`.
+
+### Authentication
+- `POST /api/auth/register`: Register with `{ name, email, password, confirmPassword }`. Sets session cookie on success.
+- `POST /api/auth/login`: Authenticate with `{ email, password, rememberMe? }`. Sets session cookie on success.
+- `POST /api/auth/logout`: Clears the session cookie.
+- `GET /api/auth/me`: Returns the active authenticated user profile.
+
+### Tasks (All Scoped to Authenticated User)
+- `GET /api/tasks`: List user's tasks with summary counts (`total`, `todo`, `inProgress`, `completed`, `overdue`).
+  - Query parameters:
+    - `search`: filters title and description
+    - `status`: `TODO`, `IN_PROGRESS`, `COMPLETED`, `OVERDUE`, or `ALL`
+    - `sort`: `created-desc`, `created-asc`, `due-asc`, `due-desc`, `title-asc`
+- `POST /api/tasks`: Create task with `{ title, description, status, dueDate }`. Returns `201`.
+- `GET /api/tasks/:id`: Retrieve single task by ID (returns `404` if unowned or nonexistent).
+- `PATCH /api/tasks/:id`: Update fields on task (title, description, status, dueDate).
+- `DELETE /api/tasks/:id`: Permanently delete task. Returns `204`.
+
+### User Profile
+- `GET /api/user/profile`: Returns user profile and total tasks count.
+- `PATCH /api/user/profile`: Update user name and email.
+- `POST /api/user/password`: Change password with current password verification.
+
+---
+
+## Quality & Verification
 
 ```bash
-# Run linting, TypeScript typecheck, and unit tests
+# Run all quality checks (ESLint, TypeScript typecheck, Vitest)
 npm run check
 
 # Run unit tests only
 npm test
 
-# Run production build
+# Build for production
 npm run build
 ```
 
@@ -323,7 +360,7 @@ npm run build
 
 ---
 
-## Realistic Future Improvements
+## Future Improvements
 
 - **Team Workspaces & Collaboration**: Allow users to create organizations, invite team members, and assign tasks to teammates.
 - **Labels & Tags**: Categorize tasks across projects or functional domains (e.g., `#engineering`, `#design`).

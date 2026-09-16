@@ -15,7 +15,6 @@ export default function ForgotPasswordPage() {
     if (!email) return;
 
     setSubmitting(true);
-    // Simulate reset link dispatch
     setTimeout(() => {
       setSubmitting(false);
       setSubmitted(true);

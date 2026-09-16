@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: "TaskFlow — Stay Focused. Get Things Done.",
   description:
     "A production-grade task management SaaS built with Next.js, TypeScript, Prisma, and PostgreSQL. Track deadlines, monitor progress, and manage work clearly.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

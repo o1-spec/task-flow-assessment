@@ -7,7 +7,6 @@ export function LandingCtaSection() {
     <section className="py-16 sm:py-20 bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-3xl bg-[#0f172a] px-6 py-12 text-white shadow-xl sm:px-12 sm:py-16">
-          {/* Subtle ambient lighting */}
           <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-indigo-500/20 blur-3xl" />
           <div className="pointer-events-none absolute -left-20 -bottom-20 h-72 w-72 rounded-full bg-cyan-500/15 blur-3xl" />
 

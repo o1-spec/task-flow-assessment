@@ -15,7 +15,6 @@ export function LandingNavbar({
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200/80 bg-white/95 backdrop-blur-md transition">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Left: Logo & Name */}
         <Link href="/" className="flex items-center gap-2.5 transition hover:opacity-90">
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-slate-950 text-white shadow-sm">
             <CheckSquare2 className="h-5 w-5" />
@@ -23,7 +22,6 @@ export function LandingNavbar({
           <span className="text-lg font-bold tracking-tight text-slate-950">TaskFlow</span>
         </Link>
 
-        {/* Desktop Nav */}
         <nav className="hidden items-center gap-8 md:flex">
           <a
             href="#features"
@@ -39,7 +37,6 @@ export function LandingNavbar({
           </a>
         </nav>
 
-        {/* Right CTA */}
         <div className="hidden items-center gap-3 md:flex">
           {user ? (
             <Link href="/dashboard">
@@ -64,7 +61,6 @@ export function LandingNavbar({
           )}
         </div>
 
-        {/* Mobile menu trigger */}
         <div className="flex md:hidden">
           <button
             type="button"
@@ -78,7 +74,6 @@ export function LandingNavbar({
         </div>
       </div>
 
-      {/* Mobile Drawer Dropdown */}
       {mobileMenuOpen && (
         <div className="border-b border-slate-200 bg-white px-4 py-5 shadow-lg md:hidden">
           <nav className="flex flex-col gap-3">

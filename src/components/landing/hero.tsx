@@ -5,14 +5,12 @@ import { Button } from "@/components/ui/button";
 export function LandingHero() {
   return (
     <section className="relative overflow-hidden pt-12 pb-20 sm:pt-16 sm:pb-24 lg:pt-20 lg:pb-32">
-      {/* Subtle background ambient mesh */}
       <div className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center">
         <div className="h-[480px] w-[700px] rounded-full bg-gradient-to-tr from-indigo-100/60 to-slate-100/80 blur-3xl opacity-70" />
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto">
-          {/* Release badge */}
           <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3.5 py-1 text-xs font-semibold text-slate-700 shadow-sm backdrop-blur mb-6">
             <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             TaskFlow 2.0 • Production Task Management
@@ -29,7 +27,6 @@ export function LandingHero() {
             TaskFlow helps modern professionals and engineering teams organize tasks, track approaching deadlines, and maintain clarity without unnecessary complexity.
           </p>
 
-          {/* CTAs */}
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
             <Link href="/register" className="w-full sm:w-auto">
               <Button size="lg" className="w-full sm:w-auto bg-slate-950 text-white hover:bg-slate-800 shadow-md">

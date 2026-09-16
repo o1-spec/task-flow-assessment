@@ -22,7 +22,6 @@ export default async function TaskDetailPage({
 
   const { id } = await params;
 
-  // Strict ownership check: only fetch if task belongs to current user
   const record = await prisma.task.findFirst({
     where: {
       id,
@@ -53,7 +52,6 @@ export default async function TaskDetailPage({
       </Link>
 
       <article className="mt-5 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft">
-        {/* Detail Header */}
         <div className="border-b border-slate-100 bg-gradient-to-br from-white to-slate-50 px-6 py-7 sm:px-8 sm:py-9">
           <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-start">
             <div className="max-w-2xl">
@@ -74,7 +72,6 @@ export default async function TaskDetailPage({
           </div>
         </div>
 
-        {/* Detail Body & Sidebar Meta */}
         <div className="grid gap-8 px-6 py-7 sm:px-8 sm:py-9 lg:grid-cols-[1fr_280px]">
           <div>
             <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">

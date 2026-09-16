@@ -8,7 +8,6 @@ export default function AuthLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 relative overflow-hidden">
-      {/* Background ambient lighting */}
       <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-96 w-[600px] rounded-full bg-indigo-100/50 blur-3xl" />
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">

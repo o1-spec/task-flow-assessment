@@ -37,7 +37,6 @@ export function DashboardView({ user }: { user: SessionUser }) {
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
 
-  // Time-based dynamic greeting
   const [greeting, setGreeting] = useState("Welcome");
 
   useEffect(() => {
@@ -84,12 +83,10 @@ export function DashboardView({ user }: { user: SessionUser }) {
     await loadDashboardData();
   };
 
-  // 5 Most recently created/updated
   const recentTasks = useMemo(() => {
     return tasks.slice(0, 5);
   }, [tasks]);
 
-  // Upcoming deadlines (tasks not completed, sorted by due date)
   const upcomingDeadlines = useMemo(() => {
     return tasks
       .filter((t) => t.status !== "COMPLETED")
@@ -104,7 +101,6 @@ export function DashboardView({ user }: { user: SessionUser }) {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8 lg:py-9">
-      {/* Top Banner & Greeting */}
       <section className="relative overflow-hidden rounded-3xl bg-[#0f172a] px-6 py-7 text-white shadow-soft sm:px-8 sm:py-8">
         <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-indigo-500/20 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-cyan-400/10 blur-3xl" />
@@ -143,7 +139,6 @@ export function DashboardView({ user }: { user: SessionUser }) {
         </div>
       </section>
 
-      {/* Summary Stat Cards */}
       <section className="mt-6 grid gap-4 grid-cols-2 lg:grid-cols-5">
         <StatCard
           label="Total Tasks"
@@ -201,9 +196,7 @@ export function DashboardView({ user }: { user: SessionUser }) {
         </div>
       </section>
 
-      {/* Two-column layout: Recent Tasks & Upcoming Deadlines */}
       <section className="mt-6 grid gap-6 lg:grid-cols-2">
-        {/* Recent Tasks */}
         <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs flex flex-col">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
@@ -256,7 +249,6 @@ export function DashboardView({ user }: { user: SessionUser }) {
           </div>
         </div>
 
-        {/* Upcoming Deadlines */}
         <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs flex flex-col">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
